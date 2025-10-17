@@ -1,4 +1,5 @@
 import typing
+
 from .main import LFG
 
 if typing.TYPE_CHECKING:

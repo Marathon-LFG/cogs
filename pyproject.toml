@@ -10,9 +10,14 @@ requires-python = "<3.12,>=3.9.1"
 readme = "README.md"
 license = {text = "MIT"}
 
+[tool.basedpyright]
+typeCheckingMode = "standard"
 
 [tool.pdm]
 distribution = false
+
+[tool.isort]
+profile = "black"
 
 [dependency-groups]
 dev = [
