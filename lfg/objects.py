@@ -4,10 +4,16 @@ import string
 import typing
 
 import discord
+from redbot.core.utils.chat_formatting import humanize_list
 
 from . import types
-from .utils import calculate_remaining_places, get_playstyle_roles_from_member, get_runners_roles_from_member,  runner_role_names, playstyle_role_names
-from redbot.core.utils.chat_formatting import humanize_list
+from .utils import (
+    calculate_remaining_places,
+    get_playstyle_roles_from_member,
+    get_runners_roles_from_member,
+    playstyle_role_names,
+    runner_role_names,
+)
 
 if typing.TYPE_CHECKING:
     from redbot.core import commands
@@ -65,22 +71,27 @@ class DefaultEmbedBuilder(RequestEmbedBuilder):
                 else f"LFG request: {ctx.remaining_places} runner left"
             )
         )
-        embed.description = self.DEFAULT_MESSAGE.safe_substitute(self.get_substitutes(ctx))
-        
+        embed.description = self.DEFAULT_MESSAGE.safe_substitute(
+            self.get_substitutes(ctx)
+        )
+
         # Currently connected members
         embed.add_field(
             name="Current runners",
-            value="\n".join(member.mention for member in ctx.voice_channel.members) or "No one???",
+            value="\n".join(member.mention for member in ctx.voice_channel.members)
+            or "No one???",
         )
         embed.add_field(
             name="Channel",
-            value=ctx.voice_channel.mention,            
+            value=ctx.voice_channel.mention,
         )
-        embed.add_field(name="\u200B", value="\u200B")
+        embed.add_field(name="\u200b", value="\u200b")
         embed.add_field(
             name="Runner",
-            value=humanize_list(runner_role_names(get_runners_roles_from_member(ctx.author))),
-            inline=True
+            value=humanize_list(
+                runner_role_names(get_runners_roles_from_member(ctx.author))
+            ),
+            inline=True,
         )
         # embed.add_field(
         #     name="Language",
@@ -88,12 +99,14 @@ class DefaultEmbedBuilder(RequestEmbedBuilder):
         # )
         embed.add_field(
             name="Focus",
-            value=humanize_list(playstyle_role_names(get_playstyle_roles_from_member(ctx.author))),
-            inline=True
+            value=humanize_list(
+                playstyle_role_names(get_playstyle_roles_from_member(ctx.author))
+            ),
+            inline=True,
         )
 
         embed.color = Colors.MARATHON.value
-        
+
         return embed
 
 
@@ -124,7 +137,9 @@ class CyberAcmeEmbedBuilder(RequestEmbedBuilder):
         )
         embed.add_field(
             name="Runner",
-            value=humanize_list(runner_role_names(get_runners_roles_from_member(ctx.author)))
+            value=humanize_list(
+                runner_role_names(get_runners_roles_from_member(ctx.author))
+            ),
         )
         # embed.add_field(
         #     name="Language",
@@ -132,7 +147,9 @@ class CyberAcmeEmbedBuilder(RequestEmbedBuilder):
         # )
         embed.add_field(
             name="Focus",
-            value=humanize_list(playstyle_role_names(get_playstyle_roles_from_member(ctx.author)))
+            value=humanize_list(
+                playstyle_role_names(get_playstyle_roles_from_member(ctx.author))
+            ),
         )
         embed.color = ctx.author.color
         return embed
@@ -257,6 +274,7 @@ class RequestContext:
     def remaining_places(self) -> int:
         return self.looking_for - len(self.voice_channel.members) + 1
 
+
 class Request:
 
     def __init__(
@@ -269,6 +287,7 @@ class Request:
 
     def make_embed(self):
         return self.ctx.embed_builder.build(self.ctx)
+
 
 class RequestCollection:
     current_requests: dict[int, dict[int, Request]]
@@ -303,14 +322,14 @@ class RequestCollection:
         self, guild_id: types.GuildID, voice_channel_id: int
     ) -> typing.Optional[Request]:
         """Get a request by its voice channel ID.
-        
+
         Parameters
         ----------
         guild_id : types.GuildID
             The ID of the guild where the request is located.
         voice_channel : int
             The ID of the voice channel where the request is located.
-        
+
         Returns
         -------
         typing.Optional[Request]

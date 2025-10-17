@@ -1,6 +1,6 @@
-import discord
 import typing
 
+import discord
 from redbot.core import app_commands, commands
 
 from lfg import checks
@@ -23,6 +23,7 @@ if typing.TYPE_CHECKING:
 
 class LFG(commands.Cog):
     """LFG system for Marathon group-making."""
+
     requests: RequestCollection
 
     def __init__(self, bot: "Red"):
@@ -32,7 +33,7 @@ class LFG(commands.Cog):
         # self.config.register_guild()
 
         self.requests = RequestCollection()
-        
+
         super().__init__()
 
     @commands.hybrid_command(name="lfg")
@@ -124,9 +125,7 @@ class LFG(commands.Cog):
     async def update_request_embeds(self, request: Request):
         message = request.ctx.notification
         if not message:
-            log.error(
-                "No notification message found for request. Cannot update embed."
-            )
+            log.error("No notification message found for request. Cannot update embed.")
             return
 
         remaining_places = calculate_remaining_places(request.ctx.voice_channel)
@@ -142,13 +141,21 @@ class LFG(commands.Cog):
         embed = request.make_embed()
         await message.edit(embed=embed)
 
-    async def on_voice_leave(self, member: "discord.Member", channel: "discord.guild.VocalGuildChannel"):
-        request = self.requests.get_request_by_voice_channel_id(channel.guild.id, channel.id)
+    async def on_voice_leave(
+        self, member: "discord.Member", channel: "discord.guild.VocalGuildChannel"
+    ):
+        request = self.requests.get_request_by_voice_channel_id(
+            channel.guild.id, channel.id
+        )
         if request:
             await self.update_request_embeds(request)
 
-    async def on_voice_join(self, member: "discord.Member", channel: "discord.guild.VocalGuildChannel"):
-        request = self.requests.get_request_by_voice_channel_id(channel.guild.id, channel.id)
+    async def on_voice_join(
+        self, member: "discord.Member", channel: "discord.guild.VocalGuildChannel"
+    ):
+        request = self.requests.get_request_by_voice_channel_id(
+            channel.guild.id, channel.id
+        )
         if request:
             await self.update_request_embeds(request)
 

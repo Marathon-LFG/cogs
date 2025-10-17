@@ -11,7 +11,7 @@ RUNNER_ROLES = (
     1365736777704276118,  # Locus
     1365736778467901550,  # Glitch (my beloved)
     1365736779134664704,  # Blackbird
-    1365736780078252257   # My second beloved
+    1365736780078252257,  # My second beloved
 )
 
 PLAYSTYLE_ROLES_IDS = (
