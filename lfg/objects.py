@@ -256,7 +256,9 @@ class EmbedBuilderFactory:
             The builder class to instantiate.
         """
         str_version = self.selected_builder_string(roles)
-        return self.builders[str_version]
+        return self.builders["default"]
+        # TODO: Once templates are completed, remove this
+        # return self.builders[str_version]
 
     def get_builder(self, ctx: "RequestContext") -> RequestEmbedBuilder:
         """Returns the instanciated builder.
