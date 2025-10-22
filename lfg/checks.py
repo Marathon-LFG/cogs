@@ -48,14 +48,13 @@ async def check_can_start_request(
             delete_after=10,
         )
         return False
-    # TODO: Remove once done
-    # if ctx.author.voice.channel.category_id != 1364881154334789632:
-    #     await ctx.send(
-    #         "You're not connected to a LFG voice channel. Please connect to <#1364881155559784539> and retry.",
-    #         ephemeral=True,
-    #         delete_after=10
-    #     )
-    #     return False
+    if ctx.author.voice.channel.category_id != 1364881154334789632:
+        await ctx.send(
+            "You're not connected to a LFG voice channel. Please connect to <#1364881155559784539> and retry.",
+            ephemeral=True,
+            delete_after=10,
+        )
+        return False
     if len(ctx.author.voice.channel.members) == players + 1:
         await ctx.send(
             "It seems you're already playing with enough players.",
@@ -63,7 +62,9 @@ async def check_can_start_request(
             delete_after=10,
         )
         return False
-    if request := requests.get_request_by_voice_channel_id(ctx.guild.id, ctx.author.voice.channel.id):
+    if request := requests.get_request_by_voice_channel_id(
+        ctx.guild.id, ctx.author.voice.channel.id
+    ):
         await ctx.send(
             f"It seems you're already in a party that is currently running a LFG request. (Led by {request.ctx.author.mention})",
             allowed_mentions=discord.AllowedMentions.none(),
