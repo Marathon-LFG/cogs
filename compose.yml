@@ -1,0 +1,18 @@
+services:
+  bot:
+    image: sutaai/dockerized-red:main
+
+    volumes:
+      - data:/data
+      - .:/cogs
+
+    environment:
+      TOKEN: $TOKEN
+      PREFIX: "."
+      STORAGE: json
+      ENABLE_DEV: true
+      VERBOSE_LEVEL: 5
+      PIP_UGRADE: true
+
+volumes:
+  data:

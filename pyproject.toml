@@ -1,0 +1,26 @@
+[project]
+name = "marathon-lfg-cogs"
+version = "0.0.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "Sutaai", email = "sutaai@proton.me"},
+]
+dependencies = ["red-discordbot>=3.5.19"]
+requires-python = "<3.12,>=3.9.1"
+readme = "README.md"
+license = {text = "MIT"}
+
+[tool.basedpyright]
+typeCheckingMode = "standard"
+
+[tool.pdm]
+distribution = false
+
+[tool.isort]
+profile = "black"
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "isort>=6.0.1",
+]
