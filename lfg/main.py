@@ -8,7 +8,6 @@ from lfg.objects import Request, RequestCollection
 from lfg.utils import log
 
 from .utils import (
-    calculate_remaining_places,
     has_joined_voice_channel,
     has_left_voice_channel,
 )
@@ -17,7 +16,6 @@ from .utils import (
 
 
 if typing.TYPE_CHECKING:
-    import discord
     from redbot.core.bot import Red
 
 
@@ -68,7 +66,7 @@ class LFG(commands.Cog):
 
         e = request.make_embed()
 
-        request_message = await ctx.send(embed=e, ephemeral=True)
+        request_message = await ctx.send(embed=e, ephemeral=False)
         request.ctx.notification = request_message
 
     @commands.is_owner()
@@ -115,20 +113,20 @@ class LFG(commands.Cog):
 
     async def complete_request(self, request: Request):
         if request.ctx.notification:
-            await request.ctx.notification.delete()
-            await request.ctx.notification.channel.send(
-                f"{request.ctx.author.display_name}'s LFG request has been completed and removed.",
-                delete_after=10,
-            )
+            await request.ctx.notification.edit(embed=request.ctx.embed_builder.build_completed(request.ctx), delete_after=10)
+            # await request.ctx.notification.channel.send(
+            #     f"{request.ctx.author.display_name}'s LFG request has been completed and removed.",
+            #     delete_after=10,
+            # )
         self.requests.pop_request(request.ctx.author.guild.id, request.ctx.author.id)
 
-    async def update_request_embeds(self, request: Request):
+    async def update_request_embed(self, request: Request):
         message = request.ctx.notification
         if not message:
             log.error("No notification message found for request. Cannot update embed.")
             return
 
-        remaining_places = calculate_remaining_places(request.ctx.voice_channel)
+        remaining_places = request.ctx.remaining_places
         if remaining_places is None:
             log.error(
                 "Could not calculate remaining places for voice channel. Cannot update embed."
@@ -143,21 +141,25 @@ class LFG(commands.Cog):
 
     async def on_voice_leave(
         self, member: "discord.Member", channel: "discord.guild.VocalGuildChannel"
-    ):
+    ) -> None:
         request = self.requests.get_request_by_voice_channel_id(
             channel.guild.id, channel.id
         )
-        if request:
-            await self.update_request_embeds(request)
+        if not request:
+            return
+        if request.ctx.author == member:
+            return await self.complete_request(request)
+        await self.update_request_embed(request)
 
     async def on_voice_join(
         self, member: "discord.Member", channel: "discord.guild.VocalGuildChannel"
-    ):
+    ) -> None:
         request = self.requests.get_request_by_voice_channel_id(
             channel.guild.id, channel.id
         )
+        
         if request:
-            await self.update_request_embeds(request)
+            await self.update_request_embed(request)
 
     @commands.Cog.listener()
     async def on_voice_state_update(

@@ -7,4 +7,5 @@ if typing.TYPE_CHECKING:
 
 
 async def setup(bot: "Red"):
-    await bot.add_cog(LFG(bot))
+    cog = LFG(bot)
+    await bot.add_cog(cog)

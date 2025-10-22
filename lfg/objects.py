@@ -6,7 +6,6 @@ import typing
 import discord
 from redbot.core.utils.chat_formatting import humanize_list
 
-from . import types
 from .utils import (
     calculate_remaining_places,
     get_playstyle_roles_from_member,
@@ -16,7 +15,7 @@ from .utils import (
 )
 
 if typing.TYPE_CHECKING:
-    from redbot.core import commands
+    from . import types
 
 
 class Roles(enum.Enum):
@@ -49,6 +48,13 @@ class RequestEmbedBuilder(abc.ABC):
 
     @abc.abstractmethod
     def build(
+        self,
+        ctx: "RequestContext",
+    ) -> discord.Embed:
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def build_completed(
         self,
         ctx: "RequestContext",
     ) -> discord.Embed:
@@ -105,10 +111,21 @@ class DefaultEmbedBuilder(RequestEmbedBuilder):
             inline=True,
         )
 
+        embed.set_thumbnail(url=ctx.author.display_avatar.url)
         embed.color = Colors.MARATHON.value
 
         return embed
 
+    def build_completed(self, ctx: "RequestContext"):
+        embed = discord.Embed(
+            title="LFG request: Complete",
+            description=f"{ctx.author.display_name} has found all runners for his game. Wish you luck, runners!"
+        )
+
+        embed.set_thumbnail(url=ctx.author.display_avatar.url)
+        embed.color = Colors.MARATHON.value
+
+        return embed
 
 class CyberAcmeEmbedBuilder(RequestEmbedBuilder):
     def build(self, ctx: "RequestContext"):
@@ -154,25 +171,40 @@ class CyberAcmeEmbedBuilder(RequestEmbedBuilder):
         embed.color = ctx.author.color
         return embed
 
+    def build_completed(self, ctx: "RequestContext"):
+        raise NotImplementedError()
+
 
 class NuCaloricEmbedBuilder(RequestEmbedBuilder):
     def build(self, ctx: "RequestContext"):
         return discord.Embed(title="NuCaloric")
+
+    def build_completed(self, ctx: "RequestContext"):
+        raise NotImplementedError()
 
 
 class TraxusEmbedBuilder(RequestEmbedBuilder):
     def build(self, ctx: "RequestContext"):
         return discord.Embed(title="Traxus")
 
+    def build_completed(self, ctx: "RequestContext"):
+        raise NotImplementedError()
+
 
 class SekiguchiGeneticsEmbedBuilder(RequestEmbedBuilder):
     def build(self, ctx: "RequestContext"):
         return discord.Embed(title="Sekiguchi Genetics")
 
+    def build_completed(self, ctx: "RequestContext"):
+        raise NotImplementedError()
+
 
 class MIDAEmbedBuilder(RequestEmbedBuilder):
     def build(self, ctx: "RequestContext"):
         return discord.Embed(title="MIDA")
+
+    def build_completed(self, ctx: "RequestContext"):
+        raise NotImplementedError()
 
 
 class EmbedBuilderFactory:
@@ -292,13 +324,13 @@ class Request:
 class RequestCollection:
     current_requests: dict[int, dict[int, Request]]
     """Contains the list of current LFG requests by guild_id and user_id."""
-    current_lfgs: dict[types.GuildID, dict[types.UserID, Request]]
+    current_lfgs: dict["types.GuildID", dict["types.UserID", Request]]
 
     def __init__(self):
         self.current_lfgs = {}
 
     def push_request(
-        self, guild_id: types.GuildID, user_id: types.UserID, request: Request
+        self, guild_id: "types.GuildID", user_id: "types.UserID", request: Request
     ) -> None:
         guild_requests = self.current_lfgs.get(guild_id)
         if guild_requests is None:
@@ -306,12 +338,12 @@ class RequestCollection:
             self.current_lfgs[guild_id] = guild_requests
         guild_requests[user_id] = request
 
-    def has_request(self, guild_id: types.GuildID, user_id: types.UserID) -> bool:
+    def has_request(self, guild_id: "types.GuildID", user_id: "types.UserID") -> bool:
         guild_requests = self.current_lfgs.get(guild_id)
         return guild_requests is not None and guild_requests.get(user_id) is not None
 
     def get_request(
-        self, guild_id: types.GuildID, user_id: types.UserID
+        self, guild_id: "types.GuildID", user_id: "types.UserID"
     ) -> typing.Optional[Request]:
         guild_requests = self.current_lfgs.get(guild_id)
         if guild_requests is None:
@@ -319,7 +351,7 @@ class RequestCollection:
         return guild_requests.get(user_id)
 
     def get_request_by_voice_channel_id(
-        self, guild_id: types.GuildID, voice_channel_id: int
+        self, guild_id: "types.GuildID", voice_channel_id: int
     ) -> typing.Optional[Request]:
         """Get a request by its voice channel ID.
 
@@ -344,7 +376,7 @@ class RequestCollection:
         return None
 
     def pop_request(
-        self, guild_id: types.GuildID, user_id: types.UserID
+        self, guild_id: "types.GuildID", user_id: "types.UserID"
     ) -> typing.Optional[Request]:
         guild_requests = self.current_lfgs.get(guild_id)
         if guild_requests is None:
