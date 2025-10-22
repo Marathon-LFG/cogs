@@ -151,6 +151,7 @@ class LFG(commands.Cog):
             channel.guild.id, channel.id
         )
         if not request:
+            log.info("No request found for leave.")
             return
         if request.ctx.author == member:
             return await self.complete_request(request)
@@ -164,7 +165,9 @@ class LFG(commands.Cog):
         )
 
         if request:
-            await self.update_request_embed(request)
+            log.info("Request found: update embed")
+            return await self.update_request_embed(request)
+        log.info("No request found for join")
 
     @commands.Cog.listener()
     async def on_voice_state_update(

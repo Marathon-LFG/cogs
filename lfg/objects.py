@@ -1,4 +1,5 @@
 import abc
+import datetime
 import enum
 import string
 import typing
@@ -92,23 +93,25 @@ class DefaultEmbedBuilder(RequestEmbedBuilder):
             value=ctx.voice_channel.mention,
         )
         embed.add_field(name="\u200b", value="\u200b")
-        embed.add_field(
-            name="Runner",
-            value=humanize_list(
-                runner_role_names(get_runners_roles_from_member(ctx.author))
-            ),
-            inline=True,
-        )
+        if roles := get_runners_roles_from_member(ctx.author):
+            embed.add_field(
+                name="Runner",
+                value=humanize_list(runner_role_names(roles)),
+                inline=True,
+            )
         # embed.add_field(
         #     name="Language",
         #     value="To set"
         # )
+        if focus := get_playstyle_roles_from_member(ctx.author):
+            embed.add_field(
+                name="Focus",
+                value=humanize_list(playstyle_role_names(focus)),
+                inline=True,
+            )
         embed.add_field(
-            name="Focus",
-            value=humanize_list(
-                playstyle_role_names(get_playstyle_roles_from_member(ctx.author))
-            ),
-            inline=True,
+            name="LFG since...",
+            value=discord.utils.format_dt(datetime.datetime.utcnow(), "R"),
         )
 
         embed.set_thumbnail(url=ctx.author.display_avatar.url)
@@ -311,7 +314,6 @@ class RequestContext:
 
 
 class Request:
-
     def __init__(
         self,
         author: discord.Member,
