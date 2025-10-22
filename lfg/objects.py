@@ -111,7 +111,7 @@ class DefaultEmbedBuilder(RequestEmbedBuilder):
             )
         embed.add_field(
             name="LFG since...",
-            value=discord.utils.format_dt(datetime.datetime.utcnow(), "R"),
+            value=discord.utils.format_dt(datetime.datetime.now(), "R"),
         )
 
         embed.set_thumbnail(url=ctx.author.display_avatar.url)
