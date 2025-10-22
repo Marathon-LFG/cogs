@@ -37,13 +37,11 @@ class LFG(commands.Cog):
     @commands.hybrid_command(name="lfg")
     @app_commands.choices(
         players=[
-            app_commands.Choice(name="1 player", value=1),
-            app_commands.Choice(name="2 players", value=2),
+            app_commands.Choice(name="Duo", value=1),
+            app_commands.Choice(name="Trio", value=2),
         ]
     )
-    @app_commands.describe(
-        players="The number of players you are looking for to make a group."
-    )
+    @app_commands.describe(players="The kind of squad you wish to create.")
     @app_commands.guilds(
         1279299830442627074, 1364692913438589098
     )  # Remove after initial development.
@@ -66,7 +64,11 @@ class LFG(commands.Cog):
 
         e = request.make_embed()
 
-        request_message = await ctx.send(embed=e, ephemeral=False)
+        lfg_channel = self.bot.get_channel(1364693332533575824)
+        if not lfg_channel:
+            log.error("Couldn't find LFG channel")
+            lfg_channel = ctx.channel
+        request_message = await lfg_channel.send(embed=e)
         request.ctx.notification = request_message
 
     @commands.is_owner()
@@ -113,7 +115,10 @@ class LFG(commands.Cog):
 
     async def complete_request(self, request: Request):
         if request.ctx.notification:
-            await request.ctx.notification.edit(embed=request.ctx.embed_builder.build_completed(request.ctx), delete_after=10)
+            await request.ctx.notification.edit(
+                embed=request.ctx.embed_builder.build_completed(request.ctx),
+                delete_after=10,
+            )
             # await request.ctx.notification.channel.send(
             #     f"{request.ctx.author.display_name}'s LFG request has been completed and removed.",
             #     delete_after=10,
@@ -157,7 +162,7 @@ class LFG(commands.Cog):
         request = self.requests.get_request_by_voice_channel_id(
             channel.guild.id, channel.id
         )
-        
+
         if request:
             await self.update_request_embed(request)
 
@@ -185,11 +190,11 @@ class LFG(commands.Cog):
         if has_joined_voice_channel(before, after):
             channel = after.channel
             assert channel
-            log.info("Voice channel joined: %s", channel.name)
+            log.debug("Voice channel joined: %s", channel.name)
             await self.on_voice_join(member, channel)
 
         if has_left_voice_channel(before, after):
             channel = before.channel
             assert channel
-            log.info("Voice channel joined: %s", channel.name)
+            log.debug("Voice channel left: %s", channel.name)
             await self.on_voice_leave(member, channel)

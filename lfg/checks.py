@@ -1,11 +1,11 @@
 import typing
+
 import discord
-
 from redbot.core.commands import check
-
 
 if typing.TYPE_CHECKING:
     from redbot.core.commands import Context, GuildContext
+
     from lfg.objects import RequestCollection
 
 
@@ -55,7 +55,7 @@ async def check_can_start_request(
             delete_after=10,
         )
         return False
-    if len(ctx.author.voice.channel.members) == players + 1:
+    if len(ctx.author.voice.channel.members) >= players + 1:
         await ctx.send(
             "It seems you're already playing with enough players.",
             ephemeral=True,

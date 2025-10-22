@@ -119,13 +119,14 @@ class DefaultEmbedBuilder(RequestEmbedBuilder):
     def build_completed(self, ctx: "RequestContext"):
         embed = discord.Embed(
             title="LFG request: Complete",
-            description=f"{ctx.author.display_name} has found all runners for his game. Wish you luck, runners!"
+            description=f"{ctx.author.display_name} has found all runners for his game. Wish you luck, runners!",
         )
 
         embed.set_thumbnail(url=ctx.author.display_avatar.url)
         embed.color = Colors.MARATHON.value
 
         return embed
+
 
 class CyberAcmeEmbedBuilder(RequestEmbedBuilder):
     def build(self, ctx: "RequestContext"):
